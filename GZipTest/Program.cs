@@ -19,14 +19,10 @@ namespace GZipTest {
                         .ForEach(t => t.Start());
 
             long res = 0, old = 0;
-            while (!manager.WaitOne(100)) {
+            while (!manager.WaitOne(100)) 
+                if (old != (res = (100 * read.Position) / read.Length)) 
+                    Console.WriteLine(DateTime.Now.ToString("HH:mm:ss.fff") + " Прогресс: " + (old = res) + "%");
 
-                res = (100 * read.Position) / read.Length;
-                if (old != res) {
-                    old = res;
-                    Console.WriteLine(DateTime.Now.ToString("HH:mm:ss.fff") + " Прогресс: " + res + "%");
-                }
-            }
             manager.IsExceptionHappened();
 
             Console.WriteLine(DateTime.Now.ToString("HH:mm:ss.fff") + " Завершено за " + manager.TotalTime().ToString());

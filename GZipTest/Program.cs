@@ -7,9 +7,9 @@ namespace GZipTest {
             , Stream write
             , ReadWriteManager manager
             , System.IO.Compression.CompressionMode mode
-            , int? readBufferSize) {
+            , int? readBufferSize, int tCount) {
             manager.CreateThreadPool(
-                Environment.ProcessorCount
+                tCount
                 , () => read.BeginRead(
                         manager.GetReadExectContext(
                             block => write.BeginWrite(
@@ -20,7 +20,7 @@ namespace GZipTest {
 
             long res = 0, old = 0;
             while (!manager.WaitOne(100)) 
-                if (old != (res = (100 * read.Position) / read.Length)) 
+                if (old < (res = (100 * read.Position) / read.Length)) 
                     Console.WriteLine(DateTime.Now.ToString("HH:mm:ss.fff") + " Прогресс: " + (old = res) + "%");
 
             manager.IsExceptionHappened();
@@ -29,6 +29,7 @@ namespace GZipTest {
         }
 
         static void Main(string[] args) {
+            var bColor = Console.ForegroundColor;
             try {
                 var settings = SettingsReader.Read(args);
 
@@ -60,7 +61,8 @@ namespace GZipTest {
                                 , write
                                 , manager
                                 , settings.CompressionMode
-                                , settings.ReadBufferSize);
+                                , settings.ReadBufferSize
+                                , settings.ThreadCount);
                     }
                     catch (Exception e) {
                         if (File.Exists(settings.Output))
@@ -71,6 +73,7 @@ namespace GZipTest {
             catch (Exception e) {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Error.WriteLine(e);
+                Console.ForegroundColor = bColor;
             }
             Console.WriteLine("Нажмите любую клавишу для завершения");
             Console.Read();

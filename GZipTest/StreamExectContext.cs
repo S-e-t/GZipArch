@@ -45,11 +45,11 @@ namespace GZipTest {
         /// <summary>
         /// Последний прочитанный блок
         /// </summary>
-        private int _read = 0;
+        private long _read = 0;
         /// <summary>
         /// Какой блок пишем
         /// </summary>
-        private int _write = 1;
+        private long _write = 1;
         /// <summary>
         /// Сколько потоков пишут
         /// </summary>
@@ -116,10 +116,11 @@ namespace GZipTest {
         /// <summary>
         /// Завершение записи блока
         /// </summary>
-        public void Write() => IsLast(Interlocked.Increment(ref _write));
+        public void Write() => Interlocked.Increment(ref _write);
 
-        private void IsLast(int bloc) {
-             if (bloc == _read)
+
+        public void IsLast() {
+             if (_write == _read)
                 _isWrite.Set();
         }
 
@@ -131,7 +132,7 @@ namespace GZipTest {
             Interlocked.Decrement(ref _read);
             if (Interlocked.Decrement(ref _threadCount) == 0) {
                 Interlocked.Increment(ref _read);
-                for (int i = 0; i < 10000 && _isWrite.WaitOne(100); i++) IsLast(_write);
+                for (int i = 0; i < 10000 && _isWrite.WaitOne(100); i++) IsLast();
                 _isEnd.Set();
             }
         }
@@ -243,11 +244,11 @@ namespace GZipTest {
                 return true;
             }
             _readWriteManager.ConsoleWriteLine("запись блока " + bloc.Id);
-            _readWriteManager.Write();
+            _readWriteManager.IsLast();
             return false;
         }
 
-        public void OnDidStart(long id) { }
+        public void OnDidStart(long id) => _readWriteManager.Write();
 
         public void OnException(Exception e) => _readWriteManager.OnException(e);
 

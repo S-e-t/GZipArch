@@ -52,7 +52,7 @@ namespace GZipTest {
                 CompressionMode = ReadMode(args[0]),
                 InputFile = GetInfoInputFile(args[1]),
                 Output = GetInfoOutFile(args[2]),
-                BlockSize = 1024 * 1024
+                BlockSize = 8 * 1024 * 1024
             };
         }
     }

@@ -55,8 +55,11 @@ namespace GZipTest {
         public FileInfo InputFile { get; set; }
         public string Output { get; set; }
         public int BlockSize { get; set; }
+        public int ThreadCount => Environment.ProcessorCount * 2;
         public int? ReadBufferSize => IsCompression ? BlockSize : null as int?;
         public bool IsCompression => CompressionMode.Compress.Equals(CompressionMode);
         public bool IsDecompress => CompressionMode.Decompress.Equals(CompressionMode);
+
+        
     }
 }

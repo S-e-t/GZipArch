@@ -29,7 +29,6 @@ namespace GZipTest {
         }
 
         static void Main(string[] args) {
-            var bColor = Console.ForegroundColor;
             try {
                 var settings = SettingsReader.Read(args);
 
@@ -73,7 +72,7 @@ namespace GZipTest {
             catch (Exception e) {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Error.WriteLine(e);
-                Console.ForegroundColor = bColor;
+                Console.ResetColor();
             }
             Console.WriteLine("Нажмите любую клавишу для завершения");
             Console.Read();

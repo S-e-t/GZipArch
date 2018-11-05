@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GZipTest\GZipTest.csproj" />
+    <ProjectReference Include="..\GZipArch\GZipArch.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace GZipTest {
+namespace GZipArch {
     class Program {
         static void Exect(Stream read
             , Stream write
@@ -32,7 +32,7 @@ namespace GZipTest {
             try {
                 var settings = SettingsReader.Read(args);
 
-                Console.WriteLine(string.Join(" ", new[] { DateTime.Now.ToString("HH:mm:ss.fff"), "Запущен GZipTest:",
+                Console.WriteLine(string.Join(" ", new[] { DateTime.Now.ToString("HH:mm:ss.fff"), "Запущен GZipArch:",
                     Environment.NewLine + "Программа предназначенна для поблочного сжатия и расжатия файлов с помощью System.IO.Compression.GzipStream.",
                     Environment.NewLine + "Для компрессии исходный файл делится на блоки в" , settings.BlockSize.GetSizeReadable(), ". Каждый блок компрессится и записывается в выходной файл независимо от остальных блоков.",
                     Environment.NewLine + "Программа в", Environment.ProcessorCount.ToString(), "потока", settings.IsCompression ? "сожмёт" : "распакует",

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace GZipTest {
+namespace GZipArch {
 
     /// <summary>
     /// РАсширения для работы с потоками

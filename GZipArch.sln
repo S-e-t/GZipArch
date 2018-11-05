@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GZipTest", "GZipTest\GZipTest.csproj", "{C97EF50B-5910-4D4A-8302-03FDAF8B3AF6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GZipArch", "GZipArch\GZipArch.csproj", "{C97EF50B-5910-4D4A-8302-03FDAF8B3AF6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GZipTest.Test", "GZipTest.Test\GZipTest.Test.csproj", "{26361731-4220-4BD6-AEEB-522B66A1EC00}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GZipArch.Test", "GZipArch.Test\GZipArch.Test.csproj", "{26361731-4220-4BD6-AEEB-522B66A1EC00}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

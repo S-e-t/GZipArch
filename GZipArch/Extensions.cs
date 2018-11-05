@@ -4,7 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 
-namespace GZipTest {
+namespace GZipArch {
     public static class Extensions {
 
         private const int BUFFER_SIZE = 256 * 1024;

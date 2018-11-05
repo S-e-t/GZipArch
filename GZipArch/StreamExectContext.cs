@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-namespace GZipTest {
+namespace GZipArch {
 
     /// <summary>
     /// Контекст обработки потока
@@ -41,7 +41,7 @@ namespace GZipTest {
     /// <summary>
     /// Класс синхронизации основоного потока, потока чтения и записи
     /// </summary>
-    public class ReadWriteManager {
+    public sealed class ReadWriteManager {
         /// <summary>
         /// Последний прочитанный блок
         /// </summary>
@@ -74,7 +74,7 @@ namespace GZipTest {
         /// <summary>
         /// Отладка
         /// </summary>
-        public readonly bool Debug = false;
+        private readonly bool Debug = false;
 
         public ReadWriteManager(bool debug = false) {
             Debug = debug;
@@ -107,7 +107,7 @@ namespace GZipTest {
         /// Начало чтения нового блока
         /// </summary>
         /// <returns>Id блока</returns>
-        public long Read() {
+        private long Read() {
             if (WaitHandle.WaitAny(new[] { _isRead, _isEnd }) == 1)
                 return 0;
             
@@ -116,10 +116,10 @@ namespace GZipTest {
         /// <summary>
         /// Завершение записи блока
         /// </summary>
-        public void Write() => Interlocked.Increment(ref _write);
+        private void Write() => Interlocked.Increment(ref _write);
 
 
-        public void IsLast() {
+        private void IsLast() {
              if (_write == _read)
                 _isWrite.Set();
         }
@@ -127,7 +127,7 @@ namespace GZipTest {
         /// <summary>
         /// Завершение потока исполнения
         /// </summary>
-        public void ThreadEnd() {
+        private void ThreadEnd() {
             ConsoleWriteLine("Завершён");
             Interlocked.Decrement(ref _read);
             if (Interlocked.Decrement(ref _threadCount) == 0) {
@@ -160,7 +160,7 @@ namespace GZipTest {
         /// </summary>
         /// <param name="block">номер блока</param>
         /// <returns>Ещё не конец?</returns>
-        public bool WaitWrite(long block) {
+        private bool WaitWrite(long block) {
             while (_write != block && !_isEnd.WaitOne(10));
             _isWrite.Reset();
             return _isEnd.WaitOne(0);
@@ -168,7 +168,7 @@ namespace GZipTest {
         /// <summary>
         /// Читаем следующий блок
         /// </summary>
-        public void ReadOn() => _isRead.Set();
+        private void ReadOn() => _isRead.Set();
 
         /// <summary>
         /// Ошибки были?
@@ -186,80 +186,82 @@ namespace GZipTest {
         /// Кажется что-то сломалось :(
         /// </summary>
         /// <param name="e">Ошибка</param>
-        public void OnException(Exception e) {
+        private void OnException(Exception e) {
             _exception = e;
             _isEnd.Set();
             _isWrite.Set();
         }
 
-        public void ConsoleWriteLine(string str) {
+        private void ConsoleWriteLine(string str) {
             if (Debug) Console.WriteLine(string.Concat(Thread.CurrentThread.ManagedThreadId,": ",str));
         }
-    }
 
-    public class ReadExectContext : IStreamExectContext {
+        private class ReadExectContext : IStreamExectContext {
 
-        private readonly ReadWriteManager _readWriteManager;
-        private readonly Action<BinaryBloc> _onRead;
+            private readonly ReadWriteManager _readWriteManager;
+            private readonly Action<BinaryBloc> _onRead;
 
-        public ReadExectContext(ReadWriteManager readWriteManager, Action<BinaryBloc> onRead) {
-            _readWriteManager = readWriteManager;
-            _onRead = onRead;
-        }
-
-        public long GetId() => _readWriteManager.Read();
-
-        public bool OnComplite(BinaryBloc bloc) {
-            if (bloc == null || bloc.Buffer == null || bloc.Buffer.Length == 0) {
-                _readWriteManager.ThreadEnd();
-                return true;
+            public ReadExectContext(ReadWriteManager readWriteManager, Action<BinaryBloc> onRead) {
+                _readWriteManager = readWriteManager;
+                _onRead = onRead;
             }
-            _readWriteManager.ConsoleWriteLine("чтение блока " + bloc.Id);
-            _onRead?.Invoke(bloc);
-            return false;
-        }
 
-        public void OnDidStart(long id) {
-            _readWriteManager.ConsoleWriteLine("ожидает чтения блока " + id);
-            _readWriteManager.ReadOn();
-        }
+            public long GetId() => _readWriteManager.Read();
 
-        public void OnException(Exception e) => _readWriteManager.OnException(e);
-
-        public bool OnWillStart(long id) => id > 0 && !_readWriteManager.WaitOne(0) ;
-    }
-
-    public class WriteExectContext : IStreamExectContext {
-        private readonly ReadWriteManager _readWriteManager;
-
-        public WriteExectContext(ReadWriteManager readWriteManager) {
-            _readWriteManager = readWriteManager;
-        }
-
-        public long GetId() => throw new NotImplementedException();
-
-        public bool OnComplite(BinaryBloc bloc) {
-            if (bloc == null || bloc.Buffer == null || bloc.Buffer.Length == 0) {
-                _readWriteManager.ThreadEnd();
-                return true;
-            }
-            _readWriteManager.ConsoleWriteLine("запись блока " + bloc.Id);
-            _readWriteManager.IsLast();
-            return false;
-        }
-
-        public void OnDidStart(long id) => _readWriteManager.Write();
-
-        public void OnException(Exception e) => _readWriteManager.OnException(e);
-
-        public bool OnWillStart(long id) {
-            _readWriteManager.ConsoleWriteLine("ожидает записи блока " + id);
-            if (_readWriteManager.WaitWrite(id)) {
-                _readWriteManager.ThreadEnd();
+            public bool OnComplite(BinaryBloc bloc) {
+                if (bloc == null || bloc.Buffer == null || bloc.Buffer.Length == 0) {
+                    _readWriteManager.ThreadEnd();
+                    return true;
+                }
+                _readWriteManager.ConsoleWriteLine("чтение блока " + bloc.Id);
+                _onRead?.Invoke(bloc);
                 return false;
             }
-            return true;
+
+            public void OnDidStart(long id) {
+                _readWriteManager.ConsoleWriteLine("ожидает чтения блока " + id);
+                _readWriteManager.ReadOn();
+            }
+
+            public void OnException(Exception e) => _readWriteManager.OnException(e);
+
+            public bool OnWillStart(long id) => id > 0 && !_readWriteManager.WaitOne(0);
+        }
+
+        private class WriteExectContext : IStreamExectContext {
+            private readonly ReadWriteManager _readWriteManager;
+
+            public WriteExectContext(ReadWriteManager readWriteManager) {
+                _readWriteManager = readWriteManager;
+            }
+
+            public long GetId() => throw new NotImplementedException();
+
+            public bool OnComplite(BinaryBloc bloc) {
+                if (bloc == null || bloc.Buffer == null || bloc.Buffer.Length == 0) {
+                    _readWriteManager.ThreadEnd();
+                    return true;
+                }
+                _readWriteManager.ConsoleWriteLine("запись блока " + bloc.Id);
+                _readWriteManager.IsLast();
+                return false;
+            }
+
+            public void OnDidStart(long id) => _readWriteManager.Write();
+
+            public void OnException(Exception e) => _readWriteManager.OnException(e);
+
+            public bool OnWillStart(long id) {
+                _readWriteManager.ConsoleWriteLine("ожидает записи блока " + id);
+                if (_readWriteManager.WaitWrite(id)) {
+                    _readWriteManager.ThreadEnd();
+                    return false;
+                }
+                return true;
+            }
         }
     }
+
+    
 
 }

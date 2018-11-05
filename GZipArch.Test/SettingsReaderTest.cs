@@ -2,7 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 
-namespace GZipTest.Test {
+namespace GZipArch.Test {
     [TestClass]
     public class SettingsReaderTest {
         protected string tmpFile;

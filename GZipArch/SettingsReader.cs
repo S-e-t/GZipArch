@@ -2,7 +2,7 @@
 using System.IO;
 using System.IO.Compression;
 
-namespace GZipTest {
+namespace GZipArch {
 
     public static class SettingsReader {
         private static CompressionMode ReadMode(string mode) {
@@ -14,7 +14,7 @@ namespace GZipTest {
                 case "d":
                     return CompressionMode.Decompress;
                 default:
-                    throw new Exception("Неверный формат направления сжатия, параметр должен задаваться в командной строке следующим образом: \n\r GZipTest.exe compress/decompress [имя исходного файла] [имя результирующего файла]");
+                    throw new Exception("Неверный формат направления сжатия, параметр должен задаваться в командной строке следующим образом: \n\r GZipArch.exe compress/decompress [имя исходного файла] [имя результирующего файла]");
             }
         }
 
@@ -46,7 +46,7 @@ namespace GZipTest {
 
         public static Settings Read(string[] args) {
             if (args == null || args.Length < 3)
-                throw new Exception("Параметры программы, имена исходного и результирующего файлов должны задаваться в командной строке следующим образом: \n\r GZipTest.exe compress/decompress [имя исходного файла] [имя результирующего файла]");
+                throw new Exception("Параметры программы, имена исходного и результирующего файлов должны задаваться в командной строке следующим образом: \n\r GZipArch.exe compress/decompress [имя исходного файла] [имя результирующего файла]");
 
             return new Settings {
                 CompressionMode = ReadMode(args[0]),

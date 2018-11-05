@@ -2,7 +2,7 @@
 using System.IO;
 using System.IO.Compression;
 
-namespace GZipTest {
+namespace GZipArch {
     /// <summary>
     /// Обрабатываемые блоки 
     /// </summary>
